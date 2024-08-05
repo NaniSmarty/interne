@@ -1,0 +1,17 @@
+{
+    "users": [
+        {
+            "Uname": "jagan",
+            "Password": "123456",
+            "type": "1",
+            "status": "0"
+        },
+        {
+            "Uname": "Narayanan",
+            "Password": "123456",
+            "type": "2",
+            "status": "0"
+        }
+    ],    
+    "posts": []
+}

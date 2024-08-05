@@ -1,0 +1,19 @@
+{
+  "name": "internapp",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start:client": "cd client && npm start",
+    "start:server": "cd server && npm start",
+    "start": "concurrently \"npm run start:client\" \"npm run start:server\""
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "axios": "^1.7.3"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
