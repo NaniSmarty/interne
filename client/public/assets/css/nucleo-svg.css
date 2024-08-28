@@ -6,8 +6,6 @@ Icon colors
 -------------------------------- */
 
 .icon {
-  display: inline-block;
-  /* icon primary color */
   color: #111111;
   height: 1em;
   width: 1em;
