@@ -1,12 +1,15 @@
 {
+  "homepage": "https://NaniSmarty.github.io/interne",
   "name": "internapp",
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -b master -d build",
     "start:client": "cd client && npm start",
     "start:server": "cd server && npm start",
     "start": "concurrently \"npm run start:client\" \"npm run start:server\"",
-     "build:client": "cd client && npm run build",
+    "build:client": "cd client && npm run build",
     "build": "npm run build:client"
   },
   "author": "",
