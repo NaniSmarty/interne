@@ -3,9 +3,75 @@ class Addquestion extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            Amount: ''
+            Amount: '',
+            Email: null,
+            Userid: null,
+            userprofile: []
         };
     }
+    componentDidMount = async () => {
+        var clientjson = JSON.parse(sessionStorage.getItem('Userdetails'))
+        this.setState({ Email: clientjson[0].Email });
+        this.setState({ Userid: clientjson[0].Userid });
+        const response = await fetch('http://localhost:5000/userdetails');
+        const usersdet = await response.json();
+        let userData = null;
+        usersdet.forEach(obj => {
+            if (obj[clientjson[0].Userid] !== undefined) {
+                userData = obj[clientjson[0].Userid];
+            }
+        });
+        this.setState({ userprofile: userData.Salarydetails });
+    }
+    handleSubmit = async (event) => {
+        event.preventDefault();
+        const { Amount } = this.state;
+        if (!Amount) {
+            alert('Please Enter Amount');
+            return;
+        }
+        this.setState({ isLoading: true });
+        const now = new Date().toISOString();
+        const Sucessres = await fetch('http://localhost:5000/userdetails', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                [this.state.Userid]: {
+                    Salarydetails: [...this.state.userprofile,
+                    {
+                        Emailid: this.state.Email,
+                        Advanceamount: Amount,
+                        Datetime: now,
+                        Status: 0,
+                        Approvedby: '-'
+                    }
+                    ]
+                }
+            })
+        })
+        try {
+            if (true) {
+                const response = await fetch('http://localhost:5000/userdetails');
+                const usersdet = await response.json();
+                let userData = null;
+                usersdet.forEach(obj => {
+                    if (obj[this.state.Userid] !== undefined) {
+                        userData = obj[this.state.Userid];
+                    }
+                });
+                this.setState({ userprofile: userData.Salarydetails });
+                this.setState({ Amount: '' });
+                alert("Sucess");
+            }
+            else {
+                alert('Invalid credentials');
+            }
+        } catch (error) {
+            alert('Error during login:');
+        } finally {
+            this.setState({ isLoading: false });
+        }
+    };
     render() {
         const handleChange = (event) => {
             const newValue = event.target.value;
@@ -61,34 +127,46 @@ class Addquestion extends Component {
                                     </div>
                                     <div class="card-body px-0 pb-2">
                                         <div class="table-responsive p-0">
-                                            <table class="table align-items-center mb-0">
+                                        <table class="table align-items-center mb-0">
                                                 <thead>
                                                     <tr>
-                                                        <th class="text-center text-uppercase text-secondary  font-weight-bolder opacity-9">Email-ID</th>
-                                                        <th class="text-center text-uppercase text-secondary  font-weight-bolder opacity-9">Total Questions</th>
-                                                        <th class="text-center text-uppercase text-secondary  font-weight-bolder opacity-9">DateTime</th>
+                                                        <th class="text-center text-uppercase text-secondary font-weight-bolder opacity-9">Email</th>
+                                                        <th class="text-center text-uppercase text-secondary font-weight-bolder opacity-9">Advance Amount</th>
+                                                        <th class="text-center text-uppercase text-secondary font-weight-bolder opacity-9">Date</th>
                                                         <th class="text-center text-uppercase text-secondary font-weight-bolder opacity-9">Status</th>
                                                         <th class="text-center text-uppercase text-secondary font-weight-bolder opacity-9">Approved By</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
-                                                    <tr>
-                                                        <td class="align-middle text-center">
-                                                            <span class="text-secondary text-xs font-weight-bold">john@creative-tim.com</span>
-                                                        </td>
-                                                        <td class="align-middle text-center">
-                                                            <span class="text-secondary text-xs font-weight-bold">123456</span>
-                                                        </td>
-                                                        <td class="align-middle text-center">
-                                                            <span class="text-secondary text-xs font-weight-bold">23/04/18 13:12:24</span>
-                                                        </td>
-                                                        <td class="align-middle text-center">
-                                                            <span class="badge badge-sm bg-gradient-success">Approved</span>
-                                                        </td>
-                                                        <td class="align-middle text-center">
-                                                            <span class="text-secondary text-xs font-weight-bold">Jagan</span>
-                                                        </td>
-                                                    </tr>
+                                                    {this.state.userprofile && this.state.userprofile.length > 0 ? (
+                                                        this.state.userprofile.map((user, index) => (
+                                                            <tr key={index}>
+                                                                <td className="align-middle text-center">
+                                                                    <span className="text-secondary text-xs font-weight-bold">{user.Emailid}</span>
+                                                                </td>
+                                                                <td className="align-middle text-center">
+                                                                    <span className="text-secondary text-xs font-weight-bold">{user.Advanceamount}</span>
+                                                                </td>
+                                                                <td className="align-middle text-center">
+                                                                    <span className="text-secondary text-xs font-weight-bold">{user.Datetime}</span>
+                                                                </td>
+                                                                <td className="align-middle text-center">
+                                                                    <span className={`badge badge-sm bg-gradient-${user.Status === 1 ? 'success' : 'danger'}`}>
+                                                                        Pending
+                                                                    </span>
+                                                                </td>
+                                                                <td className="align-middle text-center">
+                                                                    <span className="text-secondary text-xs font-weight-bold">{user.Approvedby}</span>
+                                                                </td>
+                                                            </tr>
+                                                        ))
+                                                    ) : (
+                                                        <tr>
+                                                            <td colSpan="5" className="text-center text-secondary text-xs font-weight-bold p-3" style={{ fontSize: '20px !important' }}>
+                                                                NO DATA FOUND
+                                                            </td>
+                                                        </tr>
+                                                    )}
                                                 </tbody>
                                             </table>
                                         </div>

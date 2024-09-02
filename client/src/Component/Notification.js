@@ -11,7 +11,6 @@ class Notification extends Component {
               <div class="col-lg-12 col-md-10 mx-auto">
                 <div class="card mt-4">
                   <div class="card-body p-3 pb-0">
-                    {/* alert-primary alert-secondary alert-success alert-danger alert-warning alert-info alert-dark alert-light*/}
                     <div class="alert alert-primary alert-dismissible text-white" role="alert">
                       <span class="text-sm">A simple primary alert with <a href="javascript:;" class="alert-link text-white">an example link</a>. Give it a click if you like.</span>
                       <button type="button" class="btn-close text-lg py-3 opacity-10" data-bs-dismiss="alert" aria-label="Close">

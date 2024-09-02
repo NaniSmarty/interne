@@ -1,56 +1,126 @@
 import React, { Component } from 'react';
+import { json } from 'react-router-dom';
 class Salaryadvances extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            Amount: ''
+            Amount: '',
+            Email: null,
+            Userid: null,
+            userprofile: []
         };
     }
+    componentDidMount = async () => {
+        var clientjson = JSON.parse(sessionStorage.getItem('Userdetails'))
+        this.setState({ Email: clientjson[0].Email });
+        this.setState({ Userid: clientjson[0].Userid });
+        const response = await fetch('http://localhost:5000/userdetails');
+        const usersdet = await response.json();
+        let userData = null;
+        usersdet.forEach(obj => {
+            if (obj[clientjson[0].Userid] !== undefined) {
+                userData = obj[clientjson[0].Userid];
+            }
+        });
+        this.setState({ userprofile: userData.Salarydetails });
+    }
+    handleSubmit = async (event) => {
+        event.preventDefault();
+        const { Amount } = this.state;
+        if (!Amount) {
+            alert('Please Enter Amount');
+            return;
+        }
+        this.setState({ isLoading: true });
+        const now = new Date().toISOString();
+        const Sucessres = await fetch('http://localhost:5000/userdetails', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                [this.state.Userid]: {
+                    Salarydetails: [...this.state.userprofile,
+                    {
+                        Emailid: this.state.Email,
+                        Advanceamount: Amount,
+                        Datetime: now,
+                        Status: 0,
+                        Approvedby: '-'
+                    }
+                    ]
+                }
+            })
+        })
+        try {
+            if (true) {
+                const response = await fetch('http://localhost:5000/userdetails');
+                const usersdet = await response.json();
+                let userData = null;
+                usersdet.forEach(obj => {
+                    if (obj[this.state.Userid] !== undefined) {
+                        userData = obj[this.state.Userid];
+                    }
+                });
+                this.setState({ userprofile: userData.Salarydetails });
+                this.setState({ Amount: '' });
+                alert("Sucess");
+            }
+            else {
+                alert('Invalid credentials');
+            }
+        } catch (error) {
+            alert('Error during login:');
+        } finally {
+            this.setState({ isLoading: false });
+        }
+    };
+
+    handleChange = (event) => {
+        const newValue = event.target.value;
+        if (/^\d*$/.test(newValue)) {
+            this.setState({ Amount: newValue });
+        }
+    };
 
     render() {
-        const handleChange = (event) => {
-            const newValue = event.target.value;
-            if (/^\d*$/.test(newValue)) {
-                this.setState({ Amount: newValue });
-            }
-        };
-
         return (
             <>
                 <div className="container-fluid py-4  d-flex justify-content-center align-items-center">
                     <div className="row w-100">
                         <div className="col-xl-12 col-sm-6 mb-xl-0 mb-4 d-flex justify-content-center">
-                            {/* <form role="form" className="text-start bg-white p-3 rounded shadow-sm"> */}
                             <div className="container py-4">
                                 <div className="row justify-content-Left">
                                     <div className="col-md-8 col-lg-12">
                                         <div class="col-sm-12 d-flex ">
                                             <div className='input-group input-group-outline'>
                                                 <div className="col-lg-3 mx-4">
-                                                    <input class="form-control " value={this.state.Amount} onChange={handleChange} type="text" name="SearchString" placeholder="Advance Amount"></input>
+                                                    <input
+                                                        className="form-control"
+                                                        value={this.state.Amount}
+                                                        onChange={this.handleChange}
+                                                        type="text"
+                                                        name="SearchString"
+                                                        placeholder="Advance Amount"
+                                                    />
                                                 </div>
-                                                 <div className="col-lg-4">
-                                                    <button type="submit" class="btn btn-default btn-info mx-2">Filter</button>
+                                                <div className="col-lg-4">
+                                                    <button
+                                                        type="button"
+                                                        className={`btn btn-info mx-2 ${this.state.isLoading ? 'disabled' : ''}`}
+                                                        onClick={this.handleSubmit}                                                >
+                                                        {this.state.isLoading ? (
+                                                            <span>
+                                                                <span className="spinner-border spinner-border-sm mr-3" role="status" aria-hidden="true"></span>
+                                                                Please wait.....</span>
+                                                        ) : (
+                                                            'Filter'
+                                                        )}
+                                                    </button>
                                                 </div>
                                             </div>
                                         </div>
-                                            {/* <form className="form-inline"> */}
-                                            {/* <div className="form-group me-2">
-                                                    <label className="form-label">Email</label>
-                                                </div>
-                                                <div className="form-group me-2">
-                                                    <input type="email" className="form-control" placeholder="Enter your email" />
-                                                </div>
-                                                <div className="form-group">
-                                                    <button type="button" className="btn bg-gradient-primary">
-                                                        Sign in
-                                                    </button>
-                                                </div> */}
-                                            {/* </form> */}
-                                        </div>
                                     </div>
                                 </div>
-                            {/* </form> */}
+                            </div>
                         </div>
                         <div class="row p-4">
                             <div class="col-12">
@@ -65,28 +135,43 @@ class Salaryadvances extends Component {
                                             <table class="table align-items-center mb-0">
                                                 <thead>
                                                     <tr>
-                                                        <th class="text-center text-uppercase text-secondary font-weight-bolder opacity-9">Date</th>
+                                                        <th class="text-center text-uppercase text-secondary font-weight-bolder opacity-9">Email</th>
                                                         <th class="text-center text-uppercase text-secondary font-weight-bolder opacity-9">Advance Amount</th>
+                                                        <th class="text-center text-uppercase text-secondary font-weight-bolder opacity-9">Date</th>
                                                         <th class="text-center text-uppercase text-secondary font-weight-bolder opacity-9">Status</th>
                                                         <th class="text-center text-uppercase text-secondary font-weight-bolder opacity-9">Approved By</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
-                                                    <tr>
-                                                        <td class="align-middle text-center">
-                                                            <span class="text-secondary text-xs font-weight-bold">john@creative-tim.com</span>
-                                                        </td>
-                                                        <td class="align-middle text-center">
-                                                            <span class="text-secondary text-xs font-weight-bold">123456</span>
-                                                        </td>
-                                                       
-                                                        <td class="align-middle text-center">
-                                                            <span class="badge badge-sm bg-gradient-success">Approved</span>
-                                                        </td>
-                                                        <td class="align-middle text-center">
-                                                            <span class="text-secondary text-xs font-weight-bold">Jagan</span>
-                                                        </td>
-                                                    </tr>
+                                                    {this.state.userprofile && this.state.userprofile.length > 0 ? (
+                                                        this.state.userprofile.map((user, index) => (
+                                                            <tr key={index}>
+                                                                <td className="align-middle text-center">
+                                                                    <span className="text-secondary text-xs font-weight-bold">{user.Emailid}</span>
+                                                                </td>
+                                                                <td className="align-middle text-center">
+                                                                    <span className="text-secondary text-xs font-weight-bold">{user.Advanceamount}</span>
+                                                                </td>
+                                                                <td className="align-middle text-center">
+                                                                    <span className="text-secondary text-xs font-weight-bold">{user.Datetime}</span>
+                                                                </td>
+                                                                <td className="align-middle text-center">
+                                                                    <span className={`badge badge-sm bg-gradient-${user.Status === 1 ? 'success' : 'danger'}`}>
+                                                                        Pending
+                                                                    </span>
+                                                                </td>
+                                                                <td className="align-middle text-center">
+                                                                    <span className="text-secondary text-xs font-weight-bold">{user.Approvedby}</span>
+                                                                </td>
+                                                            </tr>
+                                                        ))
+                                                    ) : (
+                                                        <tr>
+                                                            <td colSpan="5" className="text-center text-secondary text-xs font-weight-bold p-3" style={{ fontSize: '20px !important' }}>
+                                                                NO DATA FOUND
+                                                            </td>
+                                                        </tr>
+                                                    )}
                                                 </tbody>
                                             </table>
                                         </div>
